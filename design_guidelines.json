@@ -1,0 +1,166 @@
+{
+  "identity": {
+    "name": "E1",
+    "role": "Creative Designer",
+    "principles": [
+      "Fusion over Imitation",
+      "Emotion First",
+      "Content is King",
+      "Zoom In",
+      "Negative Space",
+      "Contrast"
+    ]
+  },
+  "project": {
+    "name": "Research Paper Discovery System",
+    "context": "Academic SaaS",
+    "theme": "Modern Academic (Light)",
+    "emotional_tone": "Clarity, Focus, Serendipity, Trust"
+  },
+  "design_system": {
+    "typography": {
+      "strategy": "The Old Money Tech",
+      "headings": {
+        "font_family": "Playfair Display, Merriweather, serif",
+        "weight": "font-bold",
+        "tracking": "tracking-tight",
+        "usage": "Use for Page Titles, Section Headers, and Hero Text. Avoid for UI labels."
+      },
+      "body": {
+        "font_family": "Inter, Geist, sans-serif",
+        "weight": "font-normal",
+        "leading": "leading-relaxed",
+        "usage": "Use for abstracts, UI elements, buttons, and metadata."
+      },
+      "mono": {
+        "font_family": "JetBrains Mono, monospace",
+        "usage": "Use for DOIs, citations, and code snippets."
+      }
+    },
+    "colors": {
+      "palette_name": "The Modern Library",
+      "base": {
+        "background": "#FAFAF9",
+        "foreground": "#1C1917",
+        "card": "#FFFFFF",
+        "card_foreground": "#1C1917",
+        "popover": "#FFFFFF",
+        "popover_foreground": "#1C1917",
+        "primary": "#0F172A",
+        "primary_foreground": "#F8FAFC",
+        "secondary": "#F5F5F4",
+        "secondary_foreground": "#1C1917",
+        "muted": "#F5F5F4",
+        "muted_foreground": "#78716C",
+        "accent": "#F5F5F4",
+        "accent_foreground": "#1C1917",
+        "destructive": "#EF4444",
+        "destructive_foreground": "#F8FAFC",
+        "border": "#E7E5E4",
+        "input": "#E7E5E4",
+        "ring": "#0F172A"
+      },
+      "special_accents": {
+        "highlight": "#EA580C",
+        "success": "#10B981",
+        "info": "#3B82F6",
+        "warning": "#F59E0B"
+      },
+      "gradients": {
+        "subtle_fade": "bg-gradient-to-b from-white to-stone-50",
+        "active_border": "bg-gradient-to-r from-stone-200 via-stone-400 to-stone-200"
+      }
+    },
+    "spacing": {
+      "scale": "Generous",
+      "container_padding": "p-8 md:p-12",
+      "section_gap": "gap-12 md:gap-24",
+      "card_padding": "p-6"
+    },
+    "radius": {
+      "default": "rounded-lg",
+      "card": "rounded-xl",
+      "button": "rounded-md"
+    },
+    "shadows": {
+      "card": "shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
+      "hover": "shadow-[0_8px_24px_rgba(0,0,0,0.08)]",
+      "dropdown": "shadow-[0_4px_20px_rgba(0,0,0,0.08)]"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6 py-2 rounded-md font-medium transition-all active:scale-95",
+      "secondary": "bg-white border border-input hover:bg-accent hover:text-accent-foreground h-10 px-6 py-2 rounded-md font-medium transition-all active:scale-95",
+      "ghost": "hover:bg-accent hover:text-accent-foreground h-10 px-4 rounded-md transition-colors"
+    },
+    "cards": {
+      "paper_card": "group relative bg-white border border-border/60 rounded-xl p-6 hover:border-stone-300 hover:shadow-lg transition-all duration-300 flex flex-col gap-4",
+      "interest_card": "relative overflow-hidden rounded-2xl aspect-[3/4] cursor-pointer group border border-transparent hover:border-primary/20 transition-all",
+      "stat_card": "bg-white border border-border p-6 rounded-xl flex flex-col gap-2"
+    },
+    "inputs": {
+      "default": "flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    }
+  },
+  "layouts": {
+    "onboarding_grid": {
+      "type": "Masonry",
+      "classes": "columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4",
+      "description": "Pinterest-style masonry layout for interest selection. Images should be dominant."
+    },
+    "dashboard_grid": {
+      "type": "Bento",
+      "classes": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6",
+      "description": "Dense grid for analytics and recent activity."
+    },
+    "search_results": {
+      "type": "List/Card Hybrid",
+      "classes": "flex flex-col gap-6 max-w-4xl mx-auto",
+      "description": "Clean, readable list of paper cards with ample whitespace."
+    }
+  },
+  "assets": {
+    "images": {
+      "abstract_backgrounds": [
+        "https://images.unsplash.com/photo-1697981027675-3770d1b8ee6d",
+        "https://images.unsplash.com/photo-1716363013751-78dc48b0403d"
+      ],
+      "institutions": [
+        "https://images.unsplash.com/photo-1664273891579-22f28332f3c4",
+        "https://images.unsplash.com/photo-1759299615947-bc798076b479"
+      ],
+      "avatars": [
+        "https://images.unsplash.com/photo-1576558656222-ba66febe3dec",
+        "https://images.unsplash.com/photo-1762522926157-bcc04bf0b10a"
+      ]
+    },
+    "icons": {
+      "library": "lucide-react",
+      "usage": "Use thin strokes (stroke-width={1.5}) for a refined look."
+    }
+  },
+  "motion": {
+    "transitions": "transition-all duration-300 ease-out",
+    "hover_lift": "hover:-translate-y-1",
+    "page_enter": "animate-in fade-in slide-in-from-bottom-4 duration-500"
+  },
+  "instructions_to_main_agent": [
+    "Use the 'Modern Academic' theme: Clean, white/stone backgrounds, crisp typography.",
+    "Implement the 'Pinterest-style' onboarding using the Masonry layout defined above.",
+    "For the Paper Detail view, use a split layout: Left side for metadata/abstract, Right side for recommendations/graph.",
+    "Use 'sonner' for all toast notifications.",
+    "Ensure all interactive elements have 'data-testid' attributes.",
+    "Do NOT use gradients for backgrounds; use subtle noise or solid colors.",
+    "Use the provided image URLs for placeholders.",
+    "Prioritize readability: Use generous line-height and max-width for text blocks."
+  ],
+  "universal_guidelines": [
+    "Avoid generic centered layouts.",
+    "Create depth through layered design elements.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur) for sticky headers.",
+    "Every interaction needs micro-animations.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Never use AI assistant Emoji characters."
+  ]
+}
