@@ -27,6 +27,7 @@ class User(Base):
     interests = relationship("Interest", secondary=user_interests, back_populates="users")
     favorites = relationship("UserFavorite", back_populates="user", cascade="all, delete-orphan")
     recent_views = relationship("UserRecentView", back_populates="user", cascade="all, delete-orphan")
+    saved_arxiv_papers = relationship("SavedArxivPaper", back_populates="user", cascade="all, delete-orphan")
 
 
 class Interest(Base):
