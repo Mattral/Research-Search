@@ -103,6 +103,7 @@ app.add_middleware(
 app.include_router(auth_routes.router)
 app.include_router(user_routes.router)
 app.include_router(paper_routes.router)
+app.include_router(arxiv_routes.router)
 
 
 # Keep original recommendation endpoint for backwards compatibility
