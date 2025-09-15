@@ -2,14 +2,9 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './ui/button';
-import { 
-  Search, 
-  Sparkles, 
-  User, 
-  LogOut, 
-  BookOpen,
-  Menu,
-  X
+import {
+  Search, Sparkles, User, LogOut, BookOpen, TrendingUp,
+  Menu, X, Library
 } from 'lucide-react';
 
 const Header = () => {
@@ -24,7 +19,10 @@ const Header = () => {
   };
 
   const navItems = [
-    { path: '/search', label: 'Search', icon: Search },
+    { path: '/arxiv', label: 'arXiv', icon: Search },
+    { path: '/latest', label: 'Latest', icon: TrendingUp },
+    { path: '/reading-list', label: 'Library', icon: Library },
+    { path: '/search', label: 'Graph', icon: BookOpen },
     { path: '/recommendations', label: 'For You', icon: Sparkles },
     { path: '/profile', label: 'Profile', icon: User },
   ];
@@ -33,114 +31,67 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full glass border-b border-border/40" data-testid="header">
-      <div className="container flex h-16 items-center justify-between">
-        {/* Logo */}
-        <Link 
-          to="/search" 
-          className="flex items-center gap-2 font-serif text-xl font-bold hover:opacity-80 transition-opacity"
-          data-testid="logo-link"
-        >
-          <BookOpen className="h-6 w-6" strokeWidth={1.5} />
-          <span>Re-Search</span>
+      <div className="container flex h-14 items-center justify-between">
+        <Link to="/arxiv"
+          className="flex items-center gap-2 font-serif text-lg font-bold hover:opacity-80 transition-opacity tracking-tight"
+          data-testid="logo-link">
+          <BookOpen className="h-5 w-5 text-primary" strokeWidth={1.5} />
+          <span>Re<span className="text-primary">Search</span></span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6" data-testid="desktop-nav">
+        <nav className="hidden md:flex items-center gap-1" data-testid="desktop-nav">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${
-                  isActive ? 'text-primary' : 'text-muted-foreground'
+              <Link key={item.path} to={item.path}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  isActive
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                 }`}
-                data-testid={`nav-${item.label.toLowerCase().replace(' ', '-')}`}
-              >
-                <Icon className="h-4 w-4" strokeWidth={1.5} />
+                data-testid={`nav-${item.label.toLowerCase().replace(' ', '-')}`}>
+                <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
                 {item.label}
               </Link>
             );
           })}
         </nav>
 
-        {/* User Info & Actions */}
-        <div className="hidden md:flex items-center gap-4">
-          {/* Interests Tags */}
-          {user?.interests && user.interests.length > 0 && (
-            <div className="flex items-center gap-2" data-testid="user-interests">
-              {user.interests.slice(0, 3).map((interest, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 text-xs bg-secondary rounded-full text-muted-foreground"
-                >
-                  {interest}
-                </span>
-              ))}
-              {user.interests.length > 3 && (
-                <span className="text-xs text-muted-foreground">
-                  +{user.interests.length - 3}
-                </span>
-              )}
-            </div>
-          )}
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            data-testid="logout-btn"
-          >
-            <LogOut className="h-4 w-4 mr-2" strokeWidth={1.5} />
-            Logout
+        <div className="hidden md:flex items-center gap-3">
+          <span className="text-xs text-muted-foreground">{user?.full_name || user?.username}</span>
+          <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 px-2 text-xs" data-testid="logout-btn">
+            <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />
           </Button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          data-testid="mobile-menu-btn"
-        >
-          {mobileMenuOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <Menu className="h-5 w-5" />
-          )}
+        <Button variant="ghost" size="icon" className="md:hidden h-8 w-8"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)} data-testid="mobile-menu-btn">
+          {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
       </div>
 
-      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border/40 bg-background" data-testid="mobile-menu">
-          <nav className="container py-4 flex flex-col gap-2">
+          <nav className="container py-3 flex flex-col gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return (
-                <Link
-                  key={item.path}
-                  to={item.path}
+                <Link key={item.path} to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                    isActive ? 'bg-secondary text-primary' : 'text-muted-foreground hover:bg-secondary'
-                  }`}
-                >
-                  <Icon className="h-5 w-5" strokeWidth={1.5} />
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
+                    isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-secondary'
+                  }`}>
+                  <Icon className="h-4 w-4" strokeWidth={1.5} />
                   {item.label}
                 </Link>
               );
             })}
-            <hr className="my-2 border-border/40" />
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-2 rounded-lg text-muted-foreground hover:bg-secondary transition-colors"
-            >
-              <LogOut className="h-5 w-5" strokeWidth={1.5} />
-              Logout
+            <hr className="my-1.5 border-border/40" />
+            <button onClick={handleLogout}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-secondary">
+              <LogOut className="h-4 w-4" strokeWidth={1.5} /> Logout
             </button>
           </nav>
         </div>
