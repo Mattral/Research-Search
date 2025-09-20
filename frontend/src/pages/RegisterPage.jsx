@@ -57,7 +57,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-stone-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md animate-in">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
