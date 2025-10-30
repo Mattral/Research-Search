@@ -107,10 +107,10 @@ const SearchPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background grain">
       <Header />
       
-      <main className="container py-8 px-4 md:px-8" data-testid="search-page">
+      <main className="container py-8 px-4 md:px-8 max-w-5xl mx-auto" data-testid="search-page">
         {/* Welcome Message */}
         {user && !hasSearched && (
           <div className="mb-8 animate-in">
