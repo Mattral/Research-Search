@@ -101,7 +101,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background grain">
       <Header />
       
       <main className="container py-8 px-4 md:px-8" data-testid="profile-page">
