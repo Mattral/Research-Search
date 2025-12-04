@@ -44,10 +44,10 @@ const RecommendationsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background grain">
       <Header />
       
-      <main className="container py-8 px-4 md:px-8" data-testid="recommendations-page">
+      <main className="container py-8 px-4 md:px-8 max-w-5xl mx-auto" data-testid="recommendations-page">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
