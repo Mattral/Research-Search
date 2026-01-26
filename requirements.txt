@@ -1,0 +1,19 @@
+1. install fastapi
+pip install fastapi uvicorn
+
+2. CTRL + C
+uvicorn app:app --reload
+uvicorn running on http://127.0.0.1:8000
+
+3. Open this URL in your browser 👇
+👉 http://127.0.0.1:8000/docs
+
+Look for something like:
+
+	GET /recommendations/{user_id}
+
+→ Click it
+→ Click Try it out
+→ Enter 1
+→ Click Execute
+If this works, your backend is 100% correct.

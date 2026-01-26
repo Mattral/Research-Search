@@ -1,0 +1,112 @@
+{
+  "summary": {
+    "total_tests": 17,
+    "passed_tests": 17,
+    "success_rate": 100.0,
+    "timestamp": "2026-01-26T17:32:02.768110"
+  },
+  "results": [
+    {
+      "test": "Health Check",
+      "success": true,
+      "details": "Neo4j: connected, DB: connected",
+      "timestamp": "2026-01-26T17:31:57.235505"
+    },
+    {
+      "test": "User Login",
+      "success": true,
+      "details": "User: testuser",
+      "timestamp": "2026-01-26T17:31:57.464583"
+    },
+    {
+      "test": "Get Current User",
+      "success": true,
+      "details": "User: testuser",
+      "timestamp": "2026-01-26T17:31:57.470110"
+    },
+    {
+      "test": "Get Interests",
+      "success": true,
+      "details": "Found 16 interests",
+      "timestamp": "2026-01-26T17:31:57.473943"
+    },
+    {
+      "test": "Update User Interests",
+      "success": true,
+      "details": "Selected 3 interests",
+      "timestamp": "2026-01-26T17:31:57.479532"
+    },
+    {
+      "test": "Browse Papers",
+      "success": true,
+      "details": "Found 10 papers",
+      "timestamp": "2026-01-26T17:31:57.951351"
+    },
+    {
+      "test": "Search Papers by Title",
+      "success": true,
+      "details": "Found 3 papers",
+      "timestamp": "2026-01-26T17:31:58.449121"
+    },
+    {
+      "test": "Search Papers by Author",
+      "success": true,
+      "details": "Found 2 papers",
+      "timestamp": "2026-01-26T17:31:58.936942"
+    },
+    {
+      "test": "Get Paper Details",
+      "success": true,
+      "details": "Paper: Deep Learning for Natural Language Processing: A C...",
+      "timestamp": "2026-01-26T17:31:59.429069"
+    },
+    {
+      "test": "View Paper",
+      "success": true,
+      "details": "View tracked successfully",
+      "timestamp": "2026-01-26T17:32:00.096062"
+    },
+    {
+      "test": "Like Paper",
+      "success": true,
+      "details": "Paper liked successfully",
+      "timestamp": "2026-01-26T17:32:00.101563"
+    },
+    {
+      "test": "Unlike Paper",
+      "success": true,
+      "details": "Paper unliked successfully",
+      "timestamp": "2026-01-26T17:32:00.553213"
+    },
+    {
+      "test": "Get Recommendations",
+      "success": true,
+      "details": "Found 5 recommendations",
+      "timestamp": "2026-01-26T17:32:01.840335"
+    },
+    {
+      "test": "Get Favorites",
+      "success": true,
+      "details": "Found 0 favorites",
+      "timestamp": "2026-01-26T17:32:01.845024"
+    },
+    {
+      "test": "Get Recent Views",
+      "success": true,
+      "details": "Found 1 recent views",
+      "timestamp": "2026-01-26T17:32:01.848662"
+    },
+    {
+      "test": "Change Password",
+      "success": true,
+      "details": "Password changed successfully",
+      "timestamp": "2026-01-26T17:32:02.303961"
+    },
+    {
+      "test": "Update Profile",
+      "success": true,
+      "details": "Profile updated successfully",
+      "timestamp": "2026-01-26T17:32:02.767998"
+    }
+  ]
+}
