@@ -209,7 +209,7 @@ const SearchPage = () => {
             {papers.map((paper, index) => (
               <Card
                 key={paper.paper_id}
-                className="group relative bg-white border border-border/60 p-6 hover:border-stone-300 hover:shadow-lg transition-all duration-300"
+                className="group relative bg-card border border-border/60 p-6 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
                 style={{ animationDelay: `${index * 50}ms` }}
                 data-testid={`paper-card-${paper.paper_id}`}
               >
