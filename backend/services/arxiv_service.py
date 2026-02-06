@@ -178,11 +178,12 @@ async def search_arxiv(
     """
     search_parts = []
     if query:
-        search_parts.append(f"{search_field}:{quote(query)}")
+        clean_query = query.replace('"', '%22')
+        search_parts.append(f"{search_field}:{clean_query}")
     if category:
         search_parts.append(f"cat:{category}")
 
-    search_query = "+AND+".join(search_parts) if search_parts else "all:*"
+    search_query = " AND ".join(search_parts) if search_parts else ""
 
     params = {
         "search_query": search_query,
@@ -193,7 +194,7 @@ async def search_arxiv(
     }
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
             resp = await client.get(ARXIV_API_BASE, params=params)
             resp.raise_for_status()
             return _parse_feed(resp.text)
