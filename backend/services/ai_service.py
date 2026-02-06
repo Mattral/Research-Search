@@ -3,7 +3,7 @@ AI Service - Gemini-powered paper summarization and insights.
 """
 import os
 import logging
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -14,13 +14,14 @@ logger = logging.getLogger(__name__)
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
+client = None
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 async def summarize_paper(title: str, abstract: str, authors: list = None) -> dict:
     """Generate an AI summary of a research paper."""
-    if not GEMINI_API_KEY:
+    if not client:
         return {"summary": "AI summarization unavailable. Gemini API key not configured.", "key_points": [], "significance": ""}
 
     authors_str = ", ".join(authors[:5]) if authors else "Unknown"
@@ -41,11 +42,12 @@ SIGNIFICANCE: [One sentence on why this paper matters and its potential impact]
 """
 
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash")
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+        )
         text = response.text
 
-        # Parse structured response
         summary = ""
         key_points = []
         significance = ""
