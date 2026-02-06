@@ -62,3 +62,21 @@ class UserRecentView(Base):
     viewed_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     user = relationship("User", back_populates="recent_views")
+
+
+class SavedArxivPaper(Base):
+    __tablename__ = "saved_arxiv_papers"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    arxiv_id = Column(String(50), nullable=False)
+    title = Column(String(1000), nullable=False)
+    authors_str = Column(String(2000), nullable=True)
+    summary = Column(String(5000), nullable=True)
+    primary_category = Column(String(50), nullable=True)
+    published = Column(String(50), nullable=True)
+    pdf_url = Column(String(500), nullable=True)
+    notes = Column(String(2000), nullable=True)
+    saved_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    user = relationship("User", back_populates="saved_arxiv_papers")
