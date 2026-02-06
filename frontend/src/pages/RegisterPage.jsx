@@ -62,7 +62,7 @@ const RegisterPage = () => {
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <BookOpen className="h-10 w-10 text-primary" strokeWidth={1.5} />
-          <h1 className="font-serif text-3xl font-bold">Re-Search</h1>
+          <h1 className="font-serif text-2xl font-bold tracking-tight">Re<span className="text-primary">Search</span></h1>
         </div>
 
         <Card className="border-border/60" data-testid="register-card">
