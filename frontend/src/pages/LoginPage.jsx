@@ -38,15 +38,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-stone-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md animate-in">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <BookOpen className="h-10 w-10 text-primary" strokeWidth={1.5} />
-          <h1 className="font-serif text-3xl font-bold">Re-Search</h1>
+          <BookOpen className="h-8 w-8 text-primary" strokeWidth={1.5} />
+          <h1 className="font-serif text-2xl font-bold tracking-tight">Re<span className="text-primary">Search</span></h1>
         </div>
 
-        <Card className="border-border/60" data-testid="login-card">
+        <Card className="border-border/60 bg-card" data-testid="login-card">
           <CardHeader className="text-center">
             <CardTitle>Welcome Back</CardTitle>
             <CardDescription>
