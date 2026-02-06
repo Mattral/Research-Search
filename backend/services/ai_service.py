@@ -1,9 +1,11 @@
 """
 AI Service - Gemini-powered paper summarization and insights.
+Uses emergentintegrations library with Emergent LLM key.
 """
 import os
 import logging
-from google import genai
+import uuid
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -12,21 +14,17 @@ load_dotenv(env_path)
 
 logger = logging.getLogger(__name__)
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-
-client = None
-if GEMINI_API_KEY:
-    client = genai.Client(api_key=GEMINI_API_KEY)
+API_KEY = os.environ.get("EMERGENT_LLM_KEY") or os.environ.get("GEMINI_API_KEY")
 
 
 async def summarize_paper(title: str, abstract: str, authors: list = None) -> dict:
     """Generate an AI summary of a research paper."""
-    if not client:
-        return {"summary": "AI summarization unavailable. Gemini API key not configured.", "key_points": [], "significance": ""}
+    if not API_KEY:
+        return {"summary": "AI summarization unavailable. API key not configured.", "key_points": [], "significance": ""}
 
     authors_str = ", ".join(authors[:5]) if authors else "Unknown"
 
-    prompt = f"""You are an expert research analyst. Analyze this academic paper and provide a concise, insightful summary.
+    prompt = f"""Analyze this academic paper and provide a concise, insightful summary.
 
 Paper Title: {title}
 Authors: {authors_str}
@@ -38,15 +36,18 @@ KEY_POINTS:
 - [Key finding or contribution 1]
 - [Key finding or contribution 2]
 - [Key finding or contribution 3]
-SIGNIFICANCE: [One sentence on why this paper matters and its potential impact]
-"""
+SIGNIFICANCE: [One sentence on why this paper matters and its potential impact]"""
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
+        chat = LlmChat(
+            api_key=API_KEY,
+            session_id=f"summary-{uuid.uuid4().hex[:8]}",
+            system_message="You are an expert research analyst who summarizes academic papers clearly and concisely.",
         )
-        text = response.text
+        chat.with_model("gemini", "gemini-2.0-flash")
+
+        user_msg = UserMessage(text=prompt)
+        text = await chat.send_message(user_msg)
 
         summary = ""
         key_points = []
@@ -78,7 +79,7 @@ SIGNIFICANCE: [One sentence on why this paper matters and its potential impact]
             "significance": significance.strip() or "",
         }
     except Exception as e:
-        logger.error(f"Gemini summarize error: {e}")
+        logger.error(f"AI summarize error: {e}")
         return {
             "summary": f"AI summary generation failed: {str(e)}",
             "key_points": [],
