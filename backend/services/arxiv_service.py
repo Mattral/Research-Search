@@ -208,7 +208,7 @@ async def get_arxiv_paper(arxiv_id: str) -> Optional[Dict[str, Any]]:
     params = {"id_list": arxiv_id}
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
             resp = await client.get(ARXIV_API_BASE, params=params)
             resp.raise_for_status()
             result = _parse_feed(resp.text)
