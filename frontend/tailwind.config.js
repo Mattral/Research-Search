@@ -58,9 +58,9 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['DM Sans', 'sans-serif'],
+        serif: ['Crimson Pro', 'serif'],
+        mono: ['IBM Plex Mono', 'monospace'],
       },
       keyframes: {
         "accordion-down": {
