@@ -60,4 +60,16 @@ export const paperAPI = {
   getRecentViews: () => api.get('/api/papers/me/recent-views'),
 };
 
+// arXiv API endpoints
+export const arxivAPI = {
+  search: (params) => api.get('/api/arxiv/search', { params }),
+  categories: () => api.get('/api/arxiv/categories'),
+  latest: (params) => api.get('/api/arxiv/latest', { params }),
+  getPaper: (arxivId) => api.get(`/api/arxiv/paper/${arxivId}`),
+  summarize: (data) => api.post('/api/arxiv/summarize', data),
+  save: (data) => api.post('/api/arxiv/save', data),
+  unsave: (arxivId) => api.delete(`/api/arxiv/save/${arxivId}`),
+  readingList: () => api.get('/api/arxiv/reading-list'),
+};
+
 export default api;
