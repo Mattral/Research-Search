@@ -1,112 +1,88 @@
 {
   "summary": {
-    "total_tests": 17,
-    "passed_tests": 17,
+    "total_tests": 13,
+    "passed_tests": 13,
     "success_rate": 100.0,
-    "timestamp": "2026-01-26T17:32:02.768110"
+    "timestamp": "2026-02-07T14:30:47.009518"
   },
   "results": [
     {
-      "test": "Health Check",
-      "success": true,
-      "details": "Neo4j: connected, DB: connected",
-      "timestamp": "2026-01-26T17:31:57.235505"
-    },
-    {
       "test": "User Login",
       "success": true,
-      "details": "User: testuser",
-      "timestamp": "2026-01-26T17:31:57.464583"
+      "details": "User: arxivtester",
+      "timestamp": "2026-02-07T14:30:28.937875"
     },
     {
       "test": "Get Current User",
       "success": true,
-      "details": "User: testuser",
-      "timestamp": "2026-01-26T17:31:57.470110"
+      "details": "User: arxivtester",
+      "timestamp": "2026-02-07T14:30:28.978114"
     },
     {
-      "test": "Get Interests",
+      "test": "Discover Multi-Search",
       "success": true,
-      "details": "Found 16 interests",
-      "timestamp": "2026-01-26T17:31:57.473943"
+      "details": "Found 5 papers from 3 sources: arxiv, semantic_scholar, openalex",
+      "timestamp": "2026-02-07T14:30:31.183734"
     },
     {
-      "test": "Update User Interests",
+      "test": "Discover Trends",
       "success": true,
-      "details": "Selected 3 interests",
-      "timestamp": "2026-01-26T17:31:57.479532"
+      "details": "Got trend data with 10 data points",
+      "timestamp": "2026-02-07T14:30:33.453431"
     },
     {
-      "test": "Browse Papers",
+      "test": "Paper Comparison",
       "success": true,
-      "details": "Found 10 papers",
-      "timestamp": "2026-01-26T17:31:57.951351"
+      "details": "Generated comparison matrix and AI analysis",
+      "timestamp": "2026-02-07T14:30:38.678282"
     },
     {
-      "test": "Search Papers by Title",
+      "test": "Workspace Creation",
       "success": true,
-      "details": "Found 3 papers",
-      "timestamp": "2026-01-26T17:31:58.449121"
+      "details": "Created workspace: Test Workspace 143038",
+      "timestamp": "2026-02-07T14:30:38.717488"
     },
     {
-      "test": "Search Papers by Author",
+      "test": "Workspace List",
       "success": true,
-      "details": "Found 2 papers",
-      "timestamp": "2026-01-26T17:31:58.936942"
+      "details": "Found 2 workspaces",
+      "timestamp": "2026-02-07T14:30:38.758458"
     },
     {
-      "test": "Get Paper Details",
+      "test": "Workspace Add Paper",
       "success": true,
-      "details": "Paper: Deep Learning for Natural Language Processing: A C...",
-      "timestamp": "2026-01-26T17:31:59.429069"
+      "details": "Added paper: PyramidTNT: Improved Transform...",
+      "timestamp": "2026-02-07T14:30:38.843969"
     },
     {
-      "test": "View Paper",
+      "test": "Workspace Annotate Paper",
       "success": true,
-      "details": "View tracked successfully",
-      "timestamp": "2026-01-26T17:32:00.096062"
+      "details": "Annotation saved successfully",
+      "timestamp": "2026-02-07T14:30:38.887201"
     },
     {
-      "test": "Like Paper",
+      "test": "Export Papers (BibTeX)",
       "success": true,
-      "details": "Paper liked successfully",
-      "timestamp": "2026-01-26T17:32:00.101563"
+      "details": "Generated BibTeX content (186 chars)",
+      "timestamp": "2026-02-07T14:30:38.925784"
     },
     {
-      "test": "Unlike Paper",
+      "test": "Export Papers (Markdown)",
       "success": true,
-      "details": "Paper unliked successfully",
-      "timestamp": "2026-01-26T17:32:00.553213"
+      "details": "Generated Markdown content (751 chars)",
+      "timestamp": "2026-02-07T14:30:39.003688"
     },
     {
-      "test": "Get Recommendations",
+      "test": "arXiv Search",
       "success": true,
-      "details": "Found 5 recommendations",
-      "timestamp": "2026-01-26T17:32:01.840335"
+      "details": "Found 3 arXiv papers",
+      "timestamp": "2026-02-07T14:30:45.206600"
     },
     {
-      "test": "Get Favorites",
+      "test": "arXiv Summarize",
       "success": true,
-      "details": "Found 0 favorites",
-      "timestamp": "2026-01-26T17:32:01.845024"
-    },
-    {
-      "test": "Get Recent Views",
-      "success": true,
-      "details": "Found 1 recent views",
-      "timestamp": "2026-01-26T17:32:01.848662"
-    },
-    {
-      "test": "Change Password",
-      "success": true,
-      "details": "Password changed successfully",
-      "timestamp": "2026-01-26T17:32:02.303961"
-    },
-    {
-      "test": "Update Profile",
-      "success": true,
-      "details": "Profile updated successfully",
-      "timestamp": "2026-01-26T17:32:02.767998"
+      "details": "Generated AI summary (344 chars)",
+      "timestamp": "2026-02-07T14:30:47.009235"
     }
   ]
 }
