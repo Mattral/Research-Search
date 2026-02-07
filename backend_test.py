@@ -107,8 +107,8 @@ class ResearchAPITester:
     def test_user_login(self):
         """Test user login with existing test user"""
         login_data = {
-            "email": "test@example.com",
-            "password": "test123"
+            "email": "test@arxiv.com",
+            "password": "test123456"
         }
         
         success, response = self.make_request('POST', '/api/auth/login', login_data)
