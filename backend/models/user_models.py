@@ -81,3 +81,39 @@ class SavedArxivPaper(Base):
     saved_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     user = relationship("User", back_populates="saved_arxiv_papers")
+
+
+
+class Workspace(Base):
+    __tablename__ = "workspaces"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    name = Column(String(200), nullable=False)
+    description = Column(String(1000), default="")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    user = relationship("User", back_populates="workspaces")
+    papers = relationship("WorkspacePaper", back_populates="workspace", cascade="all, delete-orphan")
+
+
+class WorkspacePaper(Base):
+    __tablename__ = "workspace_papers"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    workspace_id = Column(Integer, ForeignKey('workspaces.id'), nullable=False)
+    source = Column(String(50), nullable=False)
+    source_id = Column(String(200), nullable=False)
+    title = Column(String(1000), nullable=False)
+    authors_str = Column(String(2000), default="")
+    abstract = Column(Text, default="")
+    year = Column(Integer, nullable=True)
+    pdf_url = Column(String(500), nullable=True)
+    doi = Column(String(200), nullable=True)
+    notes = Column(Text, default="")
+    tags = Column(String(500), default="")
+    highlight = Column(Text, default="")
+    added_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    workspace = relationship("Workspace", back_populates="papers")
