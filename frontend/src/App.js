@@ -13,6 +13,10 @@ import ArxivSearchPage from './pages/ArxivSearchPage';
 import ArxivPaperPage from './pages/ArxivPaperPage';
 import ReadingListPage from './pages/ReadingListPage';
 import LatestPapersPage from './pages/LatestPapersPage';
+import DiscoverPage from './pages/DiscoverPage';
+import ComparePage from './pages/ComparePage';
+import WorkspacesPage from './pages/WorkspacesPage';
+import WorkspaceDetailPage from './pages/WorkspaceDetailPage';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -41,7 +45,7 @@ const PublicRoute = ({ children }) => {
   );
   if (isAuthenticated) {
     if (!user?.has_completed_onboarding) return <Navigate to="/onboarding" replace />;
-    return <Navigate to="/arxiv" replace />;
+    return <Navigate to="/discover" replace />;
   }
   return children;
 };
@@ -56,10 +60,15 @@ function AppRoutes() {
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+      {/* Main routes */}
+      <Route path="/discover" element={<Guarded><DiscoverPage /></Guarded>} />
+      <Route path="/compare" element={<Guarded><ComparePage /></Guarded>} />
       <Route path="/arxiv" element={<Guarded><ArxivSearchPage /></Guarded>} />
       <Route path="/arxiv/:arxivId" element={<Guarded><ArxivPaperPage /></Guarded>} />
       <Route path="/latest" element={<Guarded><LatestPapersPage /></Guarded>} />
       <Route path="/reading-list" element={<Guarded><ReadingListPage /></Guarded>} />
+      <Route path="/workspaces" element={<Guarded><WorkspacesPage /></Guarded>} />
+      <Route path="/workspaces/:wsId" element={<Guarded><WorkspaceDetailPage /></Guarded>} />
       <Route path="/search" element={<Guarded><SearchPage /></Guarded>} />
       <Route path="/paper/:paperId" element={<Guarded><PaperDetailPage /></Guarded>} />
       <Route path="/recommendations" element={<Guarded><RecommendationsPage /></Guarded>} />
@@ -74,13 +83,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <AppRoutes />
-        <Toaster
-          position="top-right"
-          theme="dark"
-          richColors
-          closeButton
-          toastOptions={{ duration: 3000 }}
-        />
+        <Toaster position="top-right" theme="dark" richColors closeButton toastOptions={{ duration: 3000 }} />
       </AuthProvider>
     </BrowserRouter>
   );
