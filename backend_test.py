@@ -11,8 +11,8 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class ResearchAPITester:
-    def __init__(self, base_url="http://localhost:3000"):
-        """Initialize tester with base URL (using frontend proxy)"""
+    def __init__(self, base_url="https://arxiv-hub.preview.emergentagent.com"):
+        """Initialize tester with base URL (production endpoint)"""
         self.base_url = base_url
         self.token = None
         self.user_id = None
