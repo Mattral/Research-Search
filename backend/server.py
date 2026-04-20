@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 from db.postgres import init_db, SessionLocal
 from db.neo4j import Neo4jConnection
 from models.user_models import Interest
-from routes import auth_routes, user_routes, paper_routes, arxiv_routes
+from routes import auth_routes, user_routes, paper_routes, arxiv_routes, discover_routes
 
 # Also import and expose the original recommendation endpoint for backwards compatibility
 from recommendation.engine import recommend_papers
