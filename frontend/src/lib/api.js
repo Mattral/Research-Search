@@ -72,4 +72,21 @@ export const arxivAPI = {
   readingList: () => api.get('/api/arxiv/reading-list'),
 };
 
+// Multi-source discover API
+export const discoverAPI = {
+  search: (params) => api.get('/api/discover/search', { params }),
+  compare: (papers) => api.post('/api/discover/compare', { papers }),
+  trends: (params) => api.get('/api/discover/trends', { params }),
+  // Workspaces
+  listWorkspaces: () => api.get('/api/discover/workspaces'),
+  createWorkspace: (data) => api.post('/api/discover/workspaces', data),
+  getWorkspace: (id) => api.get(`/api/discover/workspaces/${id}`),
+  updateWorkspace: (id, data) => api.put(`/api/discover/workspaces/${id}`, data),
+  deleteWorkspace: (id) => api.delete(`/api/discover/workspaces/${id}`),
+  addPaper: (wsId, data) => api.post(`/api/discover/workspaces/${wsId}/papers`, data),
+  removePaper: (wsId, paperId) => api.delete(`/api/discover/workspaces/${wsId}/papers/${paperId}`),
+  annotatePaper: (wsId, paperId, data) => api.put(`/api/discover/workspaces/${wsId}/papers/${paperId}/annotate`, data),
+  exportPapers: (data) => api.post('/api/discover/export', data),
+};
+
 export default api;
