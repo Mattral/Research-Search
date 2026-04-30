@@ -28,7 +28,7 @@ const LoginPage = () => {
       if (!user.has_completed_onboarding) {
         navigate('/onboarding');
       } else {
-        navigate('/arxiv');
+        navigate('/discover');
       }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Invalid credentials');
