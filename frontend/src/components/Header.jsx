@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Button } from './ui/button';
 import {
   Search, Sparkles, User, LogOut, BookOpen, TrendingUp,
-  Menu, X, Library
+  Menu, X, FolderOpen, Database, Library
 } from 'lucide-react';
 
 const Header = () => {
@@ -19,10 +19,11 @@ const Header = () => {
   };
 
   const navItems = [
+    { path: '/discover', label: 'Discover', icon: Database },
     { path: '/arxiv', label: 'arXiv', icon: Search },
     { path: '/latest', label: 'Latest', icon: TrendingUp },
     { path: '/reading-list', label: 'Library', icon: Library },
-    { path: '/search', label: 'Graph', icon: BookOpen },
+    { path: '/workspaces', label: 'Projects', icon: FolderOpen },
     { path: '/recommendations', label: 'For You', icon: Sparkles },
     { path: '/profile', label: 'Profile', icon: User },
   ];
@@ -32,20 +33,20 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full glass border-b border-border/40" data-testid="header">
       <div className="container flex h-14 items-center justify-between">
-        <Link to="/arxiv"
+        <Link to="/discover"
           className="flex items-center gap-2 font-serif text-lg font-bold hover:opacity-80 transition-opacity tracking-tight"
           data-testid="logo-link">
           <BookOpen className="h-5 w-5 text-primary" strokeWidth={1.5} />
           <span>Re<span className="text-primary">Search</span></span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1" data-testid="desktop-nav">
+        <nav className="hidden md:flex items-center gap-0.5" data-testid="desktop-nav">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname.startsWith(item.path);
             return (
               <Link key={item.path} to={item.path}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
                   isActive
                     ? 'bg-primary/10 text-primary'
                     : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
@@ -76,7 +77,7 @@ const Header = () => {
           <nav className="container py-3 flex flex-col gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path;
+              const isActive = location.pathname.startsWith(item.path);
               return (
                 <Link key={item.path} to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
