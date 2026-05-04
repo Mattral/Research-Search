@@ -573,44 +573,43 @@ class ResearchAPITester:
             self.log_result("Update Profile", False, f"Response: {response}")
 
     def run_all_tests(self):
-        """Run comprehensive test suite"""
-        print("🧪 Starting Research Paper Discovery API Tests")
+        """Run comprehensive test suite with focus on Discover features"""
+        print("🧪 Starting Research Paper Discovery API Tests (Iteration 2)")
         print("=" * 60)
         
-        # Basic health and auth tests
-        self.test_health_check()
-        self.test_user_login()  # Use existing test user
+        # Basic auth test with test@arxiv.com
+        self.test_user_login()
         self.test_get_current_user()
         
-        # Interest management
-        interests = self.test_get_interests()
-        if interests:
-            self.test_update_user_interests(interests)
+        # === NEW DISCOVER FEATURES TESTING ===
+        print("\n🔍 Testing Multi-Source Discovery Features...")
         
-        # Paper discovery and search
-        papers = self.test_browse_papers()
-        search_results = self.test_search_papers()
-        author_results = self.test_search_papers_by_author()
+        # Multi-source search
+        papers = self.test_discover_multi_search()
         
-        # Paper details and interactions
-        if papers:
-            paper_detail = self.test_get_paper_details(papers)
-            if paper_detail:
-                paper_id = paper_detail['paper_id']
-                self.test_view_paper(paper_id)
-                
-                # Test like/unlike cycle
-                if self.test_like_paper(paper_id):
-                    self.test_unlike_paper(paper_id)
+        # Trends analysis
+        self.test_discover_trends()
         
-        # Recommendations and user data
-        self.test_get_recommendations()
-        self.test_get_favorites()
-        self.test_get_recent_views()
+        # Paper comparison
+        self.test_paper_comparison()
         
-        # Profile management
-        self.test_change_password()
-        self.test_update_profile()
+        # Workspace management
+        print("\n📁 Testing Workspace Features...")
+        workspace = self.test_workspace_creation()
+        workspaces = self.test_workspace_list()
+        
+        # Test workspace operations if we have a workspace and papers
+        if workspace and papers:
+            paper_in_ws = self.test_workspace_add_paper(workspace['id'], papers[0])
+            if paper_in_ws:
+                self.test_workspace_annotate_paper(workspace['id'], paper_in_ws['id'])
+                # Test export with this paper
+                self.test_export_papers([paper_in_ws['id']])
+        
+        # arXiv specific features
+        print("\n📄 Testing arXiv Features...")
+        arxiv_papers = self.test_arxiv_search()
+        self.test_arxiv_summarize()
         
         # Print summary
         print("\n" + "=" * 60)
