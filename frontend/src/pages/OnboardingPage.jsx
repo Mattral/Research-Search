@@ -17,7 +17,7 @@ const OnboardingPage = () => {
   useEffect(() => {
     // If already completed onboarding, redirect
     if (user?.has_completed_onboarding) {
-      navigate('/search');
+      navigate('/discover');
       return;
     }
 
@@ -53,7 +53,7 @@ const OnboardingPage = () => {
       const response = await userAPI.updateInterests(selectedIds);
       updateUser(response.data);
       toast.success('Interests saved! Let\'s find papers for you.');
-      navigate('/search');
+      navigate('/discover');
     } catch (error) {
       toast.error('Failed to save interests');
     } finally {
