@@ -312,6 +312,223 @@ class ResearchAPITester:
             self.log_result("Get Recent Views", False, f"Response: {response}")
             return []
 
+    # ===== NEW DISCOVER FEATURES TESTS =====
+
+    def test_discover_multi_search(self):
+        """Test multi-source search across arXiv, Semantic Scholar, OpenAlex"""
+        if not self.token:
+            self.log_result("Discover Multi-Search", False, "No auth token available")
+            return []
+        
+        params = {"query": "transformer", "limit": 5}
+        success, response = self.make_request('GET', '/api/discover/search', params)
+        
+        if success and response.get('papers') and response.get('sources_searched'):
+            sources = response['sources_searched']
+            papers = response['papers']
+            
+            # Check if we have papers from multiple sources
+            paper_sources = {paper.get('source') for paper in papers}
+            has_multiple_sources = len(paper_sources) > 1
+            
+            self.log_result("Discover Multi-Search", True, 
+                          f"Found {len(papers)} papers from {len(sources)} sources: {', '.join(sources)}")
+            
+            return papers
+        else:
+            self.log_result("Discover Multi-Search", False, f"Response: {response}")
+            return []
+
+    def test_discover_trends(self):
+        """Test publication trend analysis"""
+        if not self.token:
+            self.log_result("Discover Trends", False, "No auth token available")
+            return
+        
+        params = {"query": "deep learning"}
+        success, response = self.make_request('GET', '/api/discover/trends', params)
+        
+        if success and response.get('trend_data'):
+            trend_data = response['trend_data']
+            self.log_result("Discover Trends", True, 
+                          f"Got trend data with {len(trend_data)} data points")
+        else:
+            self.log_result("Discover Trends", False, f"Response: {response}")
+
+    def test_paper_comparison(self):
+        """Test paper comparison functionality"""
+        if not self.token:
+            self.log_result("Paper Comparison", False, "No auth token available")
+            return
+        
+        # First get some papers to compare
+        params = {"query": "neural network", "limit": 3}
+        success, search_response = self.make_request('GET', '/api/discover/search', params)
+        
+        if not success or not search_response.get('papers'):
+            self.log_result("Paper Comparison", False, "Could not get papers to compare")
+            return
+        
+        papers = search_response['papers'][:2]  # Take first 2 papers
+        compare_data = {"papers": papers}
+        
+        success, response = self.make_request('POST', '/api/discover/compare', compare_data)
+        
+        if success and response.get('comparison_matrix') and response.get('ai_comparison'):
+            matrix = response['comparison_matrix']
+            ai_comp = response['ai_comparison']
+            self.log_result("Paper Comparison", True, 
+                          f"Generated comparison matrix and AI analysis")
+        else:
+            self.log_result("Paper Comparison", False, f"Response: {response}")
+
+    def test_workspace_creation(self):
+        """Test workspace creation"""
+        if not self.token:
+            self.log_result("Workspace Creation", False, "No auth token available")
+            return None
+        
+        workspace_data = {
+            "name": f"Test Workspace {datetime.now().strftime('%H%M%S')}",
+            "description": "Test workspace for API testing"
+        }
+        
+        success, response = self.make_request('POST', '/api/discover/workspaces', workspace_data)
+        
+        if success and response.get('id'):
+            self.log_result("Workspace Creation", True, 
+                          f"Created workspace: {response['name']}")
+            return response
+        else:
+            self.log_result("Workspace Creation", False, f"Response: {response}")
+            return None
+
+    def test_workspace_list(self):
+        """Test listing workspaces"""
+        if not self.token:
+            self.log_result("Workspace List", False, "No auth token available")
+            return []
+        
+        success, response = self.make_request('GET', '/api/discover/workspaces')
+        
+        if success and isinstance(response, list):
+            self.log_result("Workspace List", True, 
+                          f"Found {len(response)} workspaces")
+            return response
+        else:
+            self.log_result("Workspace List", False, f"Response: {response}")
+            return []
+
+    def test_workspace_add_paper(self, workspace_id, paper_data):
+        """Test adding paper to workspace"""
+        if not self.token or not workspace_id or not paper_data:
+            self.log_result("Workspace Add Paper", False, "Missing requirements")
+            return None
+        
+        # Transform paper data to workspace paper format
+        paper_payload = {
+            "source": paper_data.get('source', 'arxiv'),
+            "source_id": paper_data.get('source_id', ''),
+            "title": paper_data.get('title', ''),
+            "authors_str": ", ".join(paper_data.get('authors', [])),
+            "abstract": paper_data.get('abstract', ''),
+            "year": paper_data.get('year'),
+            "pdf_url": paper_data.get('pdf_url'),
+            "doi": paper_data.get('doi')
+        }
+        
+        success, response = self.make_request('POST', f'/api/discover/workspaces/{workspace_id}/papers', paper_payload)
+        
+        if success and response.get('id'):
+            self.log_result("Workspace Add Paper", True, 
+                          f"Added paper: {paper_payload['title'][:30]}...")
+            return response
+        else:
+            self.log_result("Workspace Add Paper", False, f"Response: {response}")
+            return None
+
+    def test_workspace_annotate_paper(self, workspace_id, paper_id):
+        """Test annotating paper in workspace"""
+        if not self.token or not workspace_id or not paper_id:
+            self.log_result("Workspace Annotate Paper", False, "Missing requirements")
+            return
+        
+        annotation_data = {
+            "notes": "This is a test annotation from API testing",
+            "tags": "test,api,automated"
+        }
+        
+        success, response = self.make_request('PUT', f'/api/discover/workspaces/{workspace_id}/papers/{paper_id}/annotate', annotation_data)
+        
+        if success and response.get('notes'):
+            self.log_result("Workspace Annotate Paper", True, "Annotation saved successfully")
+        else:
+            self.log_result("Workspace Annotate Paper", False, f"Response: {response}")
+
+    def test_export_papers(self, paper_ids):
+        """Test exporting papers in different formats"""
+        if not self.token or not paper_ids:
+            self.log_result("Export Papers", False, "No auth token or paper IDs available")
+            return
+        
+        # Test BibTeX export
+        bibtex_data = {"paper_ids": paper_ids, "format": "bibtex"}
+        success, response = self.make_request('POST', '/api/discover/export', bibtex_data)
+        
+        if success and response.get('format') == 'bibtex' and response.get('content'):
+            self.log_result("Export Papers (BibTeX)", True, 
+                          f"Generated BibTeX content ({len(response['content'])} chars)")
+        else:
+            self.log_result("Export Papers (BibTeX)", False, f"Response: {response}")
+        
+        # Test Markdown export
+        markdown_data = {"paper_ids": paper_ids, "format": "markdown"}
+        success, response = self.make_request('POST', '/api/discover/export', markdown_data)
+        
+        if success and response.get('format') == 'markdown' and response.get('content'):
+            self.log_result("Export Papers (Markdown)", True, 
+                          f"Generated Markdown content ({len(response['content'])} chars)")
+        else:
+            self.log_result("Export Papers (Markdown)", False, f"Response: {response}")
+
+    def test_arxiv_search(self):
+        """Test arXiv search functionality"""
+        if not self.token:
+            self.log_result("arXiv Search", False, "No auth token available")
+            return []
+        
+        params = {"query": "attention", "max_results": 3}
+        success, response = self.make_request('GET', '/api/arxiv/search', params)
+        
+        if success and response.get('papers'):
+            papers = response['papers']
+            self.log_result("arXiv Search", True, 
+                          f"Found {len(papers)} arXiv papers")
+            return papers
+        else:
+            self.log_result("arXiv Search", False, f"Response: {response}")
+            return []
+
+    def test_arxiv_summarize(self):
+        """Test arXiv paper summarization"""
+        if not self.token:
+            self.log_result("arXiv Summarize", False, "No auth token available")
+            return
+        
+        # Test with sample paper data
+        paper_data = {
+            "title": "Attention Is All You Need",
+            "abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder."
+        }
+        
+        success, response = self.make_request('POST', '/api/arxiv/summarize', paper_data)
+        
+        if success and response.get('summary'):
+            self.log_result("arXiv Summarize", True, 
+                          f"Generated AI summary ({len(response['summary'])} chars)")
+        else:
+            self.log_result("arXiv Summarize", False, f"Response: {response}")
+
     def test_change_password(self):
         """Test changing user password"""
         if not self.token:
