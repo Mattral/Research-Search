@@ -1,9 +1,4 @@
-import sys
 import os
-
-# Add parent directory to path for recommendation module
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -12,18 +7,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Import after loading env
 from db.postgres import init_db, SessionLocal
 from db.neo4j import Neo4jConnection
+from db.mongo import ensure_indexes, papers_collection
 from models.user_models import Interest
-from routes import auth_routes, user_routes, paper_routes, arxiv_routes, discover_routes
-
-# Also import and expose the original recommendation endpoint for backwards compatibility
-from recommendation.engine import recommend_papers
+from routes import (
+    auth_routes, user_routes, paper_routes, arxiv_routes,
+    discover_routes, recommendation_routes,
+)
+from services.embedding_service import active_backend
 
 
 def seed_interests(db):
@@ -46,51 +41,53 @@ def seed_interests(db):
         {"name": "Psychology", "icon": "Heart", "image_url": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400"},
         {"name": "Cybersecurity", "icon": "Shield", "image_url": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400"},
     ]
-    
+
     existing = db.query(Interest).count()
     if existing == 0:
         for interest_data in default_interests:
-            interest = Interest(**interest_data)
-            db.add(interest)
+            db.add(Interest(**interest_data))
         db.commit()
         logger.info("Seeded default interests")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     logger.info("Starting up...")
     init_db()
-    
-    # Seed data
+
     db = SessionLocal()
     try:
         seed_interests(db)
     finally:
         db.close()
-    
-    # Test Neo4j connection
+
+    # MongoDB (recommendation corpus + feedback)
+    try:
+        await ensure_indexes()
+        logger.info("MongoDB indexes ensured")
+    except Exception as e:
+        logger.warning(f"MongoDB init failed: {e}")
+
+    # Neo4j is optional/legacy; recommendations no longer depend on it.
     driver = Neo4jConnection.get_driver()
     if driver:
-        logger.info("Neo4j connection established")
+        logger.info("Neo4j connection established (optional)")
     else:
-        logger.warning("Neo4j connection failed - recommendations may be limited")
-    
+        logger.info("Neo4j not connected (optional; hybrid recommendations do not require it)")
+
     yield
-    
-    # Shutdown
+
     logger.info("Shutting down...")
     Neo4jConnection.close()
 
 
 app = FastAPI(
     title="Re-Search API",
-    description="Research Paper Discovery & Recommendation System",
-    version="1.0.0",
-    lifespan=lifespan
+    description="Research Paper Discovery & Hybrid Recommendation System",
+    version="2.0.0",
+    lifespan=lifespan,
 )
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -99,32 +96,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
 app.include_router(auth_routes.router)
 app.include_router(user_routes.router)
 app.include_router(paper_routes.router)
 app.include_router(arxiv_routes.router)
 app.include_router(discover_routes.router)
-
-
-# Keep original recommendation endpoint for backwards compatibility
-@app.get("/api/recommendations/{user_id}")
-def get_recommendations_legacy(user_id: int):
-    """Legacy recommendation endpoint (from original repo)"""
-    data = recommend_papers(user_id)
-    if not data.get("recommendations"):
-        data = {"message": "No recommendations found"}
-    return data
+app.include_router(recommendation_routes.router)
 
 
 @app.get("/api/health")
-def health_check():
+async def health_check():
     """Health check endpoint"""
     neo4j_status = "connected" if Neo4jConnection.get_driver() else "disconnected"
+    try:
+        corpus = await papers_collection.count_documents({})
+    except Exception:
+        corpus = 0
     return {
         "status": "healthy",
+        "database": "connected",
         "neo4j": neo4j_status,
-        "database": "connected"
+        "recommendation_engine": "hybrid",
+        "embedding_backend": active_backend(),
+        "corpus_size": corpus,
     }
 
 
@@ -133,5 +127,5 @@ def root():
     return {
         "message": "Re-Search API - Research Paper Discovery System",
         "docs": "/docs",
-        "health": "/api/health"
+        "health": "/api/health",
     }
