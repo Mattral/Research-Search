@@ -1,224 +1,128 @@
+"""
+Recommendation service.
+
+Personalized paper recommendations built from the relational DB
+(user interests + liked/viewed history) combined with live results from the
+Semantic Scholar API. No graph database dependency.
+"""
 from typing import List, Dict, Any
-from neo4j import Session as Neo4jSession
-from sqlalchemy.orm import Session
-from models.user_models import UserFavorite, UserRecentView
+from datetime import datetime, timezone
+import asyncio
 import logging
+
+from sqlalchemy.orm import Session
+
+from models.user_models import User, UserFavorite, UserRecentView
+from services.semantic_scholar_service import search_semantic_scholar
+from services.openalex_service import search_openalex
 
 logger = logging.getLogger(__name__)
 
-# Import from existing recommendation module
-from recommendation.scoring import calculate_score
+CURRENT_YEAR = datetime.now(timezone.utc).year
 
-# Neo4j Queries (from the original queries.py)
-CITATION_BASED = """
-MATCH (u:User {id: $userId})-[:LIKED|VIEWED]->(liked:Paper)
-MATCH (liked)-[:CITES]->(rec:Paper)
-WHERE NOT (u)-[:LIKED|VIEWED]->(rec)
-WITH rec, COUNT(DISTINCT liked) as relevance
-RETURN rec.id as paperId, rec.title as title, rec.year as year,
-       relevance, 'citation' as source
-ORDER BY relevance DESC
-LIMIT 15
-"""
-
-AUTHOR_BASED = """
-MATCH (u:User {id: $userId})-[:LIKED|VIEWED]->(liked:Paper)
-MATCH (a:Author)-[:WROTE]->(liked)
-MATCH (a)-[:WROTE]->(rec:Paper)
-WHERE NOT (u)-[:LIKED|VIEWED]->(rec) AND liked <> rec
-WITH rec, COUNT(DISTINCT a) as authorRelevance, collect(DISTINCT a.name)[0..3] as commonAuthors
-RETURN rec.id as paperId, rec.title as title, rec.year as year,
-       authorRelevance, 'author' as source, commonAuthors
-ORDER BY authorRelevance DESC
-LIMIT 15
-"""
-
-VENUE_BASED = """
-MATCH (u:User {id: $userId})-[:LIKED|VIEWED]->(liked:Paper)
-MATCH (liked)-[:PUBLISHED_IN]->(v:Venue)
-MATCH (rec:Paper)-[:PUBLISHED_IN]->(v)
-WHERE NOT (u)-[:LIKED|VIEWED]->(rec) AND liked <> rec
-WITH rec, COUNT(DISTINCT v) as venueRelevance, collect(DISTINCT v.name)[0..3] as venues
-RETURN rec.id as paperId, rec.title as title, rec.year as year,
-       venueRelevance, 'venue' as source, venues
-ORDER BY venueRelevance DESC
-LIMIT 15
-"""
-
-POPULARITY_QUERY = """
-MATCH (rec:Paper)<-[:CITES]-(citing:Paper)
-WHERE NOT EXISTS {
-    MATCH (u:User {id: $userId})-[:LIKED|VIEWED]->(rec)
-}
-WITH rec, COUNT(citing) as popularity
-RETURN rec.id as paperId, rec.title as title, rec.year as year,
-       popularity, 'popularity' as source
-ORDER BY popularity DESC
-LIMIT 10
-"""
+# Fallback topics used when a user has no interests or history yet.
+DEFAULT_TOPICS = [
+    "large language models",
+    "deep learning",
+    "reinforcement learning",
+]
 
 
-def get_recommendations(
-    neo4j_session: Neo4jSession,
-    db: Session,
-    user_id: int,
-    limit: int = 10
-) -> List[Dict[str, Any]]:
-    """
-    Generate personalized recommendations using the existing scoring logic
-    but with real Neo4j data instead of mocked data.
-    """
-    if neo4j_session is None:
-        return []
-    
-    candidates = {}
-    
-    # Fetch citation-based candidates
-    try:
-        result = neo4j_session.run(CITATION_BASED, {"userId": user_id})
-        for record in result:
-            paper_id = record["paperId"]
-            if paper_id not in candidates:
-                candidates[paper_id] = {
-                    "paperId": paper_id,
-                    "title": record["title"],
-                    "year": record["year"],
-                    "is_cited": True,
-                    "same_author": False,
-                    "same_venue": False,
-                    "popularity": 0,
-                    "sources": ["citation"]
-                }
-    except Exception as e:
-        logger.error(f"Citation query error: {e}")
-    
-    # Fetch author-based candidates
-    try:
-        result = neo4j_session.run(AUTHOR_BASED, {"userId": user_id})
-        for record in result:
-            paper_id = record["paperId"]
-            if paper_id in candidates:
-                candidates[paper_id]["same_author"] = True
-                candidates[paper_id]["sources"].append("author")
-                candidates[paper_id]["commonAuthors"] = record.get("commonAuthors", [])
-            else:
-                candidates[paper_id] = {
-                    "paperId": paper_id,
-                    "title": record["title"],
-                    "year": record["year"],
-                    "is_cited": False,
-                    "same_author": True,
-                    "same_venue": False,
-                    "popularity": 0,
-                    "sources": ["author"],
-                    "commonAuthors": record.get("commonAuthors", [])
-                }
-    except Exception as e:
-        logger.error(f"Author query error: {e}")
-    
-    # Fetch venue-based candidates
-    try:
-        result = neo4j_session.run(VENUE_BASED, {"userId": user_id})
-        for record in result:
-            paper_id = record["paperId"]
-            if paper_id in candidates:
-                candidates[paper_id]["same_venue"] = True
-                candidates[paper_id]["sources"].append("venue")
-                candidates[paper_id]["venues"] = record.get("venues", [])
-            else:
-                candidates[paper_id] = {
-                    "paperId": paper_id,
-                    "title": record["title"],
-                    "year": record["year"],
-                    "is_cited": False,
-                    "same_author": False,
-                    "same_venue": True,
-                    "popularity": 0,
-                    "sources": ["venue"],
-                    "venues": record.get("venues", [])
-                }
-    except Exception as e:
-        logger.error(f"Venue query error: {e}")
-    
-    # Fetch popularity data and add popular papers if not enough candidates
-    try:
-        result = neo4j_session.run(POPULARITY_QUERY, {"userId": user_id})
-        for record in result:
-            paper_id = record["paperId"]
-            popularity_normalized = min(record["popularity"] / 100.0, 1.0)  # Normalize
-            if paper_id in candidates:
-                candidates[paper_id]["popularity"] = popularity_normalized
-            else:
-                candidates[paper_id] = {
-                    "paperId": paper_id,
-                    "title": record["title"],
-                    "year": record["year"],
-                    "is_cited": False,
-                    "same_author": False,
-                    "same_venue": False,
-                    "popularity": popularity_normalized,
-                    "sources": ["popularity"]
-                }
-    except Exception as e:
-        logger.error(f"Popularity query error: {e}")
-    
-    # If no candidates from user history, get popular papers
-    if not candidates:
-        try:
-            fallback_query = """
-            MATCH (p:Paper)<-[:CITES]-(citing:Paper)
-            WITH p, COUNT(citing) as popularity
-            OPTIONAL MATCH (a:Author)-[:WROTE]->(p)
-            OPTIONAL MATCH (p)-[:PUBLISHED_IN]->(v:Venue)
-            RETURN p.id as paperId, p.title as title, p.year as year,
-                   popularity, collect(DISTINCT a.name)[0..3] as authors,
-                   v.name as venue
-            ORDER BY popularity DESC
-            LIMIT 20
-            """
-            result = neo4j_session.run(fallback_query)
-            for record in result:
-                paper_id = record["paperId"]
-                candidates[paper_id] = {
-                    "paperId": paper_id,
-                    "title": record["title"],
-                    "year": record["year"],
-                    "is_cited": False,
-                    "same_author": False,
-                    "same_venue": False,
-                    "popularity": min(record["popularity"] / 100.0, 1.0),
-                    "sources": ["trending"],
-                    "authors": record.get("authors", []),
-                    "venue": record.get("venue")
-                }
-        except Exception as e:
-            logger.error(f"Fallback query error: {e}")
-    
-    # Score and rank candidates using existing scoring function
-    recommendations = []
-    for paper_id, paper in candidates.items():
-        score, reasons = calculate_score(paper)
+def _build_query_terms(user: User) -> List[str]:
+    """Derive search terms from the user's interests, then recent history."""
+    terms: List[str] = [i.name for i in (user.interests or [])]
+
+    if not terms:
+        # Fall back to keywords from recently viewed / liked paper titles.
+        titles = [v.paper_title for v in (user.recent_views or []) if v.paper_title]
+        titles += [f.paper_title for f in (user.favorites or []) if f.paper_title]
+        terms = [t for t in titles if t][:3]
+
+    if not terms:
+        terms = DEFAULT_TOPICS
+
+    return terms[:3]
+
+
+def _score_paper(paper: Dict[str, Any], interest_terms: List[str]) -> (float, List[str]):
+    """Score a candidate paper on recency, citations, and interest match."""
+    score = 0.0
+    reasons: List[str] = []
+
+    # Interest match
+    text = f"{paper.get('title', '')} {' '.join(paper.get('fields_of_study') or [])}".lower()
+    matched = next((t for t in interest_terms if t.lower() in text), None)
+    if matched:
+        score += 0.4
+        reasons.append(f"Matches your interest in {matched}")
+
+    # Citation impact (normalized, capped)
+    citations = paper.get("citation_count") or 0
+    if citations > 0:
+        cit_score = min(citations / 500.0, 1.0) * 0.35
+        score += cit_score
+        if citations >= 100:
+            reasons.append(f"Highly cited ({citations} citations)")
+
+    # Recency
+    year = paper.get("year")
+    if year:
+        age = max(CURRENT_YEAR - int(year), 0)
+        recency_score = max(0.0, (5 - age) / 5.0) * 0.25
+        score += recency_score
+        if age <= 2:
+            reasons.append("Recently published")
+
+    if not reasons:
+        reasons.append("Related to your research field")
+
+    return round(min(score, 1.0), 2), reasons
+
+
+async def get_recommendations(db: Session, user: User, limit: int = 10) -> List[Dict[str, Any]]:
+    """Generate personalized recommendations from interests + live search."""
+    interest_terms = _build_query_terms(user)
+
+    # Papers the user already interacted with (exclude from results).
+    seen_ids = {f.paper_id for f in (user.favorites or [])}
+    seen_ids |= {v.paper_id for v in (user.recent_views or [])}
+    seen_titles = {(f.paper_title or "").lower() for f in (user.favorites or [])}
+    seen_titles |= {(v.paper_title or "").lower() for v in (user.recent_views or [])}
+
+    # Fetch candidates concurrently across the derived terms.
+    # OpenAlex is the primary source (reliable, no key); Semantic Scholar
+    # supplements it but is best-effort (public API is rate-limited).
+    tasks = []
+    for term in interest_terms:
+        tasks.append(search_openalex(term, limit=10, sort="cited_by_count:desc"))
+        tasks.append(search_semantic_scholar(term, limit=10))
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    candidates: Dict[str, Dict[str, Any]] = {}
+    for res in results:
+        if isinstance(res, Exception):
+            logger.error(f"Recommendation candidate fetch failed: {res}")
+            continue
+        for p in res.get("papers", []):
+            pid = p.get("source_id")
+            if not pid or pid in candidates or pid in seen_ids:
+                continue
+            if (p.get("title") or "").lower() in seen_titles:
+                continue
+            candidates[pid] = p
+
+    recommendations: List[Dict[str, Any]] = []
+    for pid, paper in candidates.items():
+        score, reasons = _score_paper(paper, interest_terms)
         recommendations.append({
-            "paper_id": paper_id,
-            "title": paper["title"],
+            "paper_id": pid,
+            "title": paper.get("title", ""),
             "score": score,
-            "reason": "; ".join(reasons) if reasons else "Trending in your field",
+            "reason": "; ".join(reasons),
+            "authors": paper.get("authors", []),
             "year": paper.get("year"),
-            "authors": paper.get("authors", paper.get("commonAuthors", [])),
-            "venue": paper.get("venue", paper.get("venues", [""])[0] if paper.get("venues") else None)
+            "venue": paper.get("journal"),
         })
-    
-    # Sort by score and return top results
+
     recommendations.sort(key=lambda x: x["score"], reverse=True)
     return recommendations[:limit]
-
-
-def get_user_history_paper_ids(db: Session, user_id: int) -> Dict[str, List[str]]:
-    """Get user's liked and viewed paper IDs from PostgreSQL"""
-    favorites = db.query(UserFavorite).filter(UserFavorite.user_id == user_id).all()
-    recent_views = db.query(UserRecentView).filter(UserRecentView.user_id == user_id).all()
-    
-    return {
-        "liked": [f.paper_id for f in favorites],
-        "viewed": [v.paper_id for v in recent_views]
-    }
