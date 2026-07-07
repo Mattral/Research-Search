@@ -16,6 +16,12 @@
 
 </div>
 
+<div align="center">
+
+![Re-Search UI](capture.png)
+
+</div>
+
 ---
 
 ## What is ReSearch?
@@ -129,13 +135,13 @@ ReSearch aggregates **3 major research databases** into a single interface with 
                            │ REST / JSON + JWT
                            ▼
 ┌────────────────────────────────────────────────────────────────────┐
-│                     FastAPI (Python 3.11)                           │
-│  ┌────────┐ ┌──────────┐ ┌────────┐ ┌──────┐ ┌────────────────┐  │
-│  │  Auth  │ │ Discover │ │ arXiv  │ │Papers│ │ AI (Gemini)    │  │
-│  │(JWT)   │ │(multi-   │ │(XML    │ │(Neo4j│ │ Summarize      │  │
-│  │        │ │ source)  │ │ parse) │ │graph)│ │ Compare        │  │
-│  └───┬────┘ └───┬──────┘ └───┬────┘ └──┬───┘ └────────┬───────┘  │
-└──────┼──────────┼────────────┼─────────┼──────────────┼───────────┘
+│                     FastAPI (Python 3.11)                          │
+│  ┌────────┐ ┌──────────┐ ┌────────┐ ┌──────┐ ┌────────────────┐    │
+│  │  Auth  │ │ Discover │ │ arXiv  │ │Papers│ │ AI (Gemini)    │    │
+│  │(JWT)   │ │(multi-   │ │(XML    │ │(Neo4j│ │ Summarize      │    │
+│  │        │ │ source)  │ │ parse) │ │graph)│ │ Compare        │    │
+│  └───┬────┘ └───┬──────┘ └───┬────┘ └──┬───┘ └────────┬───────┘    │
+└──────┼──────────┼────────────┼─────────┼──────────────┼────────────┘
        ▼          ▼            ▼         ▼              ▼
   PostgreSQL  ┌─────────────────────┐  Neo4j       Gemini API
   (users,     │ Semantic Scholar    │  (graph)
@@ -160,8 +166,8 @@ Full architecture docs: [report/Architecture.md](report/Architecture.md)
 ### 1. Clone
 
 ```bash
-git clone https://github.com/your-org/research-paper-discovery.git
-cd research-paper-discovery
+git clone https://github.com/Mattral/Research-Search.git
+cd Research-Search
 ```
 
 ### 2. Backend
