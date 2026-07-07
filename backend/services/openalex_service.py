@@ -5,11 +5,31 @@ Docs: https://docs.openalex.org/
 """
 import httpx
 import logging
+import asyncio
 from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
 OA_API = "https://api.openalex.org"
+
+
+async def _get_with_retry(client: httpx.AsyncClient, url: str, params: dict, attempts: int = 3):
+    """GET with light backoff on rate limits / transient server errors."""
+    last_exc = None
+    for i in range(attempts):
+        try:
+            resp = await client.get(url, params=params)
+            if resp.status_code in (429, 500, 502, 503, 504):
+                await asyncio.sleep(min(2 * (i + 1), 8))
+                continue
+            resp.raise_for_status()
+            return resp
+        except (httpx.TimeoutException, httpx.TransportError) as e:
+            last_exc = e
+            await asyncio.sleep(min(2 * (i + 1), 8))
+    if last_exc:
+        raise last_exc
+    return None
 
 
 async def search_openalex(
@@ -37,9 +57,10 @@ async def search_openalex(
         params["filter"] = ",".join(filters)
 
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.get(f"{OA_API}/works", params=params)
-            resp.raise_for_status()
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            resp = await _get_with_retry(client, f"{OA_API}/works", params)
+            if resp is None:
+                return {"total": 0, "page": page, "papers": []}
             data = resp.json()
 
             papers = []
@@ -75,7 +96,7 @@ async def search_openalex(
                     "url": w.get("id", ""),
                     "pdf_url": pdf_url,
                     "doi": (w.get("doi") or "").replace("https://doi.org/", "") if w.get("doi") else None,
-                    "journal": (w.get("primary_location") or {}).get("source", {}).get("display_name") if w.get("primary_location") else None,
+                    "journal": ((w.get("primary_location") or {}).get("source") or {}).get("display_name") if w.get("primary_location") else None,
                     "fields_of_study": [c.get("display_name", "") for c in (w.get("concepts") or [])[:5]],
                 })
 
@@ -84,3 +105,49 @@ async def search_openalex(
     except Exception as e:
         logger.error(f"OpenAlex search error: {e}")
         return {"total": 0, "page": 1, "papers": []}
+
+
+async def get_work_details(work_id: str) -> Optional[Dict[str, Any]]:
+    """Get detailed work info from OpenAlex by work ID (e.g. 'W2101234009')."""
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(f"{OA_API}/works/{work_id}", params={"mailto": "research-search@example.com"})
+            resp.raise_for_status()
+            w = resp.json()
+
+            authors = []
+            for a in (w.get("authorships") or [])[:20]:
+                name = (a.get("author") or {}).get("display_name", "")
+                if name:
+                    authors.append(name)
+
+            abstract = ""
+            inv = w.get("abstract_inverted_index")
+            if inv:
+                words = {}
+                for word, positions in inv.items():
+                    for pos in positions:
+                        words[pos] = word
+                abstract = " ".join(words[k] for k in sorted(words.keys()))
+
+            referenced = [r.replace("https://openalex.org/", "") for r in (w.get("referenced_works") or [])[:20]]
+
+            return {
+                "source": "openalex",
+                "source_id": (w.get("id") or "").replace("https://openalex.org/", ""),
+                "title": w.get("display_name") or w.get("title") or "",
+                "abstract": abstract[:3000],
+                "authors": authors,
+                "year": w.get("publication_year"),
+                "citation_count": w.get("cited_by_count", 0),
+                "url": w.get("id", ""),
+                "pdf_url": (w.get("open_access") or {}).get("oa_url"),
+                "doi": (w.get("doi") or "").replace("https://doi.org/", "") if w.get("doi") else None,
+                "journal": ((w.get("primary_location") or {}).get("source") or {}).get("display_name") if w.get("primary_location") else None,
+                "fields_of_study": [c.get("display_name", "") for c in (w.get("concepts") or [])[:5]],
+                "references": [{"id": rid, "title": "", "year": None} for rid in referenced],
+                "citations": [],
+            }
+    except Exception as e:
+        logger.error(f"OpenAlex detail error: {e}")
+        return None
