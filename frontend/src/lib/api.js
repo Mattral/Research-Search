@@ -89,4 +89,12 @@ export const discoverAPI = {
   exportPapers: (data) => api.post('/api/discover/export', data),
 };
 
+// Hybrid recommendations API
+export const recommendationAPI = {
+  get: (limit = 12) => api.get('/api/recommendations', { params: { limit } }),
+  trending: (limit = 12) => api.get('/api/recommendations/trending', { params: { limit } }),
+  feedback: (data) => api.post('/api/recommendations/feedback', data),
+  status: () => api.get('/api/recommendations/status'),
+};
+
 export default api;
