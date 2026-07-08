@@ -46,3 +46,4 @@ credentials.json
 *.pem
 *.key
 .credentials
+backend/research.db 
