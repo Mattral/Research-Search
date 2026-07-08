@@ -16,7 +16,7 @@ from pathlib import Path
 env_path = Path(__file__).parent.parent / '.env'
 load_dotenv(env_path)
 
-SECRET_KEY = os.environ.get("JWT_SECRET", "research-paper-discovery-jwt-secret-key-2024")
+SECRET_KEY = os.environ.get("JWT_SECRET", "Research-Search-jwt-secret-key-2024")
 ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", 1440))
 
