@@ -59,8 +59,8 @@ Look for issues tagged with `good first issue` — these are intentionally scope
 ### 1. Fork and clone
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/research-paper-discovery.git
-cd research-paper-discovery
+git clone https://github.com/Mattral/Research-Search.git
+cd Research-Search
 ```
 
 ### 2. Backend

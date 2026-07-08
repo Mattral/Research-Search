@@ -36,7 +36,7 @@ services:
       NEO4J_URI: ${NEO4J_URI:-}
       NEO4J_USER: ${NEO4J_USER:-neo4j}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-}
-      JWT_SECRET: ${JWT_SECRET:-research-paper-discovery-jwt-secret-key-2024}
+      JWT_SECRET: ${JWT_SECRET:-Research-Search-jwt-secret-key-2024}
       JWT_ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: "1440"
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
