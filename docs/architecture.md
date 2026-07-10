@@ -7,19 +7,19 @@ engine on top, and organizes everything into researcher workspaces.
 ## High‑level diagram
 
 ```
-                       ┌──────────────────────────────┐
+                       ┌───────────────────────────────┐
                        │        React frontend         │
                        │  Discover · Compare · Trends  │
                        │  Workspaces · For‑You (recs)  │
-                       └───────────────┬──────────────┘
+                       └───────────────┬───────────────┘
                                        │ REST (/api/*, JWT)
-                       ┌───────────────▼──────────────┐
+                       ┌───────────────▼────────────────┐
                        │         FastAPI backend        │
                        │  routes/ services/ models/     │
-                       └───┬───────────┬───────────┬───┘
+                       └───┬───────────┬───────────┬────┘
       relational (users,   │           │           │   corpus + embeddings +
       workspaces, likes)   │           │           │   recommendation feedback
-                 ┌─────────▼──┐  ┌─────▼─────┐  ┌───▼────────┐
+                 ┌─────────▼──┐  ┌──────▼─────┐  ┌───▼────────┐
                  │ SQLAlchemy │  │  External  │  │  MongoDB   │
                  │ (SQLite/PG)│  │  scholarly │  │  papers /  │
                  └────────────┘  │   APIs*    │  │  feedback  │
