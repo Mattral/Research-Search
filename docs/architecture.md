@@ -16,9 +16,9 @@ engine on top, and organizes everything into researcher workspaces.
                        ┌───────────────▼────────────────┐
                        │         FastAPI backend        │
                        │  routes/ services/ models/     │
-                       └───┬───────────┬───────────┬────┘
-      relational (users,   │           │           │   corpus + embeddings +
-      workspaces, likes)   │           │           │   recommendation feedback
+                       └───┬────────────┬───────────┬───┘
+      relational (users,   │            │           │   corpus + embeddings +
+      workspaces, likes)   │            │           │   recommendation feedback
                  ┌─────────▼──┐  ┌──────▼─────┐  ┌───▼────────┐
                  │ SQLAlchemy │  │  External  │  │  MongoDB   │
                  │ (SQLite/PG)│  │  scholarly │  │  papers /  │
